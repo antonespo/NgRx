@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 
 import { AuthService } from './auth.service';
-import { getMaskUsername } from './state/user.reducer';
+import { getMaskUsername, State } from './state/user.reducer';
 
 @Component({
   templateUrl: './login.component.html',
@@ -18,7 +18,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private store: Store<any>
+    private store: Store<State>
   ) {}
 
   ngOnInit(): void {
