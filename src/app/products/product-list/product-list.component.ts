@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { select, Store } from '@ngrx/store';
-
-import { Subscription } from 'rxjs';
-
+import { Store } from '@ngrx/store';
 import { Product } from '../product';
 import { ProductService } from '../product.service';
-import { getCurrentProduct, getShowProductCode, State } from '../state/product.reducer';
+import {
+  getCurrentProduct,
+  getShowProductCode,
+  State,
+} from '../state/product.reducer';
 import * as ProductActions from '../state/product.actions';
 
 @Component({
@@ -26,9 +27,9 @@ export class ProductListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.store.select(getCurrentProduct).subscribe(
-      (currentProduct) => (this.selectedProduct = currentProduct)
-    );
+    this.store
+      .select(getCurrentProduct)
+      .subscribe((currentProduct) => (this.selectedProduct = currentProduct));
 
     this.productService.getProducts().subscribe({
       next: (products: Product[]) => (this.products = products),
