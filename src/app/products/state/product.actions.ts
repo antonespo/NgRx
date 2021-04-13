@@ -15,7 +15,7 @@ export const initializeCurrentProduct = createAction(
 // Actions with Data
 export const setCurrentProduct = createAction(
   '[Product] Set Current Product',
-  props<{ product: Product }>()
+  props<{ currentProductId: number }>()
 );
 
 // Complex Actions
