@@ -120,6 +120,7 @@ export class ProductEditComponent implements OnInit {
   }
 
   deleteProduct(product: Product): void {
+    // TO DO: Refactor using NgRx Store and Effects
     if (product && product.id) {
       if (confirm(`Really delete the product: ${product.productName}?`)) {
         this.productService.deleteProduct(product.id).subscribe({
@@ -140,8 +141,9 @@ export class ProductEditComponent implements OnInit {
         // Then copy over the values from the form
         // This ensures values not on the form, such as the Id, are retained
         const product = { ...originalProduct, ...this.productForm.value };
-
         if (product.id === 0) {
+          // Creation scenario
+          // TO DO: Refactor using NgRx Store and Effects
           this.productService.createProduct(product).subscribe({
             next: (p) =>
               this.store.dispatch(
@@ -150,13 +152,10 @@ export class ProductEditComponent implements OnInit {
             error: (err) => (this.errorMessage = err),
           });
         } else {
-          this.productService.updateProduct(product).subscribe({
-            next: (p) =>
-              this.store.dispatch(
-                ProductActions.setCurrentProduct({ currentProductId: p.id })
-              ),
-            error: (err) => (this.errorMessage = err),
-          });
+          // Update scenario
+          this.store.dispatch(
+            ProductActions.updateProduct({ product: product })
+          );
         }
       }
     }
