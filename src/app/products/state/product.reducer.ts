@@ -51,10 +51,12 @@ export const getCurrentProduct = createSelector(
         productName: '',
         productCode: 'New',
         description: '',
-        starRating: 0
-      } as Product
+        starRating: 0,
+      } as Product;
     } else {
-      return currentProductId ? state.products.find(p => p.id === currentProductId) : null;
+      return currentProductId
+        ? state.products.find((p) => p.id === currentProductId)
+        : null;
     }
   }
 );
@@ -104,7 +106,7 @@ export const productReducer = createReducer<ProductState>(
     (state): ProductState => {
       return {
         ...state,
-        currentProductId: 0
+        currentProductId: 0,
       };
     }
   ),
@@ -120,35 +122,73 @@ export const productReducer = createReducer<ProductState>(
   ),
   on(
     ProductActions.loadProductsFailure,
-    (state, action) : ProductState =>{
+    (state, action): ProductState => {
       return {
         ...state,
         products: [],
-        error: action.error
-      }
+        error: action.error,
+      };
     }
   ),
   on(
     ProductActions.updateProductSuccess,
-    (state, action) : ProductState => {
-      const updatedProducts = state.products.map(
-        item => item.id === action.product.id ? action.product : item
-      )
-      return{
+    (state, action): ProductState => {
+      const updatedProducts = state.products.map((item) =>
+        item.id === action.product.id ? action.product : item
+      );
+      return {
         ...state,
         products: updatedProducts,
         currentProductId: action.product.id,
-        error: ''
+        error: '',
       };
     }
   ),
   on(
     ProductActions.updateProductFailure,
-    (state, action) : ProductState => {
+    (state, action): ProductState => {
       return {
         ...state,
-        error: action.error
-      }
+        error: action.error,
+      };
+    }
+  ),
+  on(
+    ProductActions.createProductSuccess,
+    (state, action): ProductState => {
+      return {
+        ...state,
+        products: [...state.products, action.product],
+        error: '',
+      };
+    }
+  ),
+  on(
+    ProductActions.createProductFailure,
+    (state, action): ProductState => {
+      return {
+        ...state,
+        error: action.error,
+      };
+    }
+  ),
+  on(
+    ProductActions.deleteProductSuccess,
+    (state, action): ProductState => {
+      return {
+        ...state,
+        products: state.products.filter((p) => p.id !== action.productId),
+        error: '',
+      };
+    }
+  ),
+  on(
+    ProductActions.deleteProductFailure,
+    (state, action): ProductState => {
+      return {
+        ...state,
+        error: action.error,
+      };
     }
   )
 );

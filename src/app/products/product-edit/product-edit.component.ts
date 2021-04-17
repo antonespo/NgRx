@@ -9,7 +9,7 @@ import { GenericValidator } from '../../shared/generic-validator';
 import { NumberValidators } from '../../shared/number.validator';
 import * as ProductActions from '../state/product.actions';
 import { Store } from '@ngrx/store';
-import { getCurrentProduct, State } from './../state/product.reducer';
+import { getCurrentProduct, getError, State } from './../state/product.reducer';
 import { tap } from 'rxjs/operators';
 
 @Component({
@@ -18,7 +18,6 @@ import { tap } from 'rxjs/operators';
 })
 export class ProductEditComponent implements OnInit {
   pageTitle = 'Product Edit';
-  errorMessage = '';
   productForm: FormGroup;
 
   // Use with the generic validation message class
@@ -26,12 +25,9 @@ export class ProductEditComponent implements OnInit {
   private validationMessages: { [key: string]: { [key: string]: string } };
   private genericValidator: GenericValidator;
   product$: Observable<Product | null>;
+  errorMessage$: Observable<string | null>;
 
-  constructor(
-    private fb: FormBuilder,
-    private productService: ProductService,
-    private store: Store<State>
-  ) {
+  constructor(private fb: FormBuilder, private store: Store<State>) {
     // Defines all of the validation messages for the form.
     // These could instead be retrieved from a file or database.
     this.validationMessages = {
@@ -73,6 +69,7 @@ export class ProductEditComponent implements OnInit {
     this.product$ = this.store
       .select(getCurrentProduct)
       .pipe(tap((currentProduct) => this.displayProduct(currentProduct)));
+    this.errorMessage$ = this.store.select(getError);
 
     // Watch for value changes for validation
     this.productForm.valueChanges.subscribe(
@@ -123,14 +120,13 @@ export class ProductEditComponent implements OnInit {
     // TO DO: Refactor using NgRx Store and Effects
     if (product && product.id) {
       if (confirm(`Really delete the product: ${product.productName}?`)) {
-        this.productService.deleteProduct(product.id).subscribe({
-          next: () => this.store.dispatch(ProductActions.clearCurrentProduct()),
-          error: (err) => (this.errorMessage = err),
-        });
+        this.store.dispatch(
+          ProductActions.deleteProduct({ productId: product.id })
+        );
+      } else {
+        // No need to delete, it was never saved
+        this.store.dispatch(ProductActions.clearCurrentProduct());
       }
-    } else {
-      // No need to delete, it was never saved
-      this.store.dispatch(ProductActions.clearCurrentProduct());
     }
   }
 
@@ -143,14 +139,9 @@ export class ProductEditComponent implements OnInit {
         const product = { ...originalProduct, ...this.productForm.value };
         if (product.id === 0) {
           // Creation scenario
-          // TO DO: Refactor using NgRx Store and Effects
-          this.productService.createProduct(product).subscribe({
-            next: (p) =>
-              this.store.dispatch(
-                ProductActions.setCurrentProduct({ currentProductId: p.id })
-              ),
-            error: (err) => (this.errorMessage = err),
-          });
+          this.store.dispatch(
+            ProductActions.createProduct({ product: product })
+          );
         } else {
           // Update scenario
           this.store.dispatch(
